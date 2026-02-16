@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 // Eliminamos el import de emailjs ya que usaremos tu backend
 import {
   TrendingUp, Mail, MessageSquare, Send,
@@ -30,7 +31,7 @@ const Contacto = () => {
 
     try {
       // Esta es la línea de comando que conecta con tu Django
-      const response = await fetch('http://localhost:8000/api/wallet/api/contacto/', {
+      const response = await fetch(`${API_BASE_URL}/api/wallet/api/contacto/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -313,8 +314,17 @@ const Contacto = () => {
               <p className="text-slate-500 text-sm">Sigue nuestras actualizaciones.</p>
             </div>
           </div>
-          <div className="border-t border-slate-900 pt-8 text-center text-xs">
+          <div className="border-t border-slate-900 pt-8 text-center text-xs space-y-2">
             <p>&copy; 2026 CryptoManager. Creado para Proyecto Lenguaje III. Todos los derechos reservados.</p>
+            <div className="pt-2 flex flex-col items-center">
+              <p className="font-semibold text-slate-500 mb-2">Equipo de Desarrollo:</p>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-1 sm:gap-x-6 text-slate-400">
+                <span className="whitespace-nowrap">José Navas (V-31.116.782)</span>
+                <span className="whitespace-nowrap">Juan Colmenares (V-28.586.636)</span>
+                <span className="whitespace-nowrap">Kristhian Noriega (V-25.411.246)</span>
+                <span className="whitespace-nowrap">Luis Puebla (V-31.357.905)</span>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

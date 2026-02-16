@@ -291,6 +291,7 @@ const AuthPage = () => {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="nombre@ejemplo.com"
+                      autoComplete="off"
                       className="w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-cyan-500 transition-all"
                     />
                   </div>
@@ -317,6 +318,7 @@ const AuthPage = () => {
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="••••••••"
+                      autoComplete="off"
                       className="w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-12 text-slate-200 focus:outline-none focus:border-cyan-500 transition-all"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
@@ -341,9 +343,20 @@ const AuthPage = () => {
           )}
 
           {/* Footer movido un poco más abajo con margen superior */}
-          <div className="mt-16 text-center text-xs text-slate-600 pb-4">
-            <p>&copy; 2026 CryptoManager. Creado para Proyecto Lenguaje III. Todos los derechos reservados</p>
-            <div className="flex justify-center gap-4 mt-2">
+          <div className="mt-8 text-center text-xs text-slate-500">
+            <p>&copy; 2026 CryptoManager. Todos los derechos reservados.</p>
+
+            <div className="mt-4 pt-4 border-t border-slate-800/50">
+              <p className="font-semibold mb-2 text-slate-400">Desarrollado por:</p>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-center gap-1 sm:gap-x-6 text-slate-500">
+                <span className="whitespace-nowrap">José Navas (V-31.116.782)</span>
+                <span className="whitespace-nowrap">Juan Colmenares (V-28.586.636)</span>
+                <span className="whitespace-nowrap">Kristhian Noriega (V-25.411.246)</span>
+                <span className="whitespace-nowrap">Luis Puebla (V-31.357.905)</span>
+              </div>
+            </div>
+
+            <div className="mt-4 space-x-4">
               <a href="/terminos#privacidad" className="hover:text-slate-400">Privacidad</a>
               <a href="/terminos#terminos" className="hover:text-slate-400">Términos</a>
             </div>

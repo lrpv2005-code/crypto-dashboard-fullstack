@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Lock, Eye, EyeOff, ShieldCheck, Mail, ArrowLeft } from 'lucide-react';
 import GestionModal from './components/GestionModal';
+import { API_BASE_URL } from './config';
 
 const ResetPasswordPage = () => {
     const { uid, token } = useParams();
@@ -48,7 +49,7 @@ const ResetPasswordPage = () => {
 
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:8000/api/wallet/confirmar-password/', {
+            const response = await fetch(`${API_BASE_URL}/api/wallet/confirmar-password/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
