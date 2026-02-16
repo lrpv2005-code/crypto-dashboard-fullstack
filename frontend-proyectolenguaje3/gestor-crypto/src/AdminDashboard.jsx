@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from './config';
 import GestionModal from './components/GestionModal';
 import logoImg from './assets/components/logo.jpg';
 import {
@@ -39,7 +40,7 @@ const AdminDashboard = () => {
             const token = localStorage.getItem('accessToken');
 
             // Construimos la URL con filtros
-            let url = `http://localhost:8000/api/admin/transacciones/?status=${filterStatus}`;
+            let url = `${API_BASE_URL}/api/admin/transacciones/?status=${filterStatus}`;
             if (filterType !== 'all') {
                 url += `&type=${filterType}`;
             }
@@ -126,7 +127,7 @@ const AdminDashboard = () => {
         try {
             const token = localStorage.getItem('accessToken');
             // Llamamos al endpoint con el ID y la acción
-            const response = await fetch(`http://localhost:8000/api/admin/transacciones/${id}/`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/transacciones/${id}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -179,7 +180,7 @@ const AdminDashboard = () => {
             }
 
             // Llamamos al nuevo endpoint de admin
-            const response = await fetch('http://localhost:8000/api/transactions/exportar_todo_excel/', {
+            const response = await fetch(`${API_BASE_URL}/api/transactions/exportar_todo_excel/`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -360,154 +361,103 @@ const AdminDashboard = () => {
                         </div>
                     ) : (
                         <>
-                            {/* --- VISTA DE ESCRITORIO (TABLA) --- */}
-                            <div className="hidden md:block overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead className="bg-slate-950/50 border-b border-slate-800">
-                                        <tr>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">ID</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Usuario</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Tipo</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Monto Crypto</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Total USD</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Acciones/Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-800">
-                                        {currentTransactions.length > 0 ? currentTransactions.map((tx) => (
-                                            <tr key={tx.id} className="hover:bg-slate-800/50 transition-colors group">
-                                                <td className="px-6 py-4 text-slate-500 font-mono text-xs">#{tx.id}</td>
-                                                <td className="px-6 py-4">
-                                                    <div className="font-medium text-slate-200">{tx.email_usuario}</div>
-                                                    <div className="text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString()}</div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${tx.type === 'buy'
-                                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                                                            : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
-                                                            }`}>
-                                                            {tx.type === 'buy' ? <ArrowDownLeft className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
-                                                        </div>
-                                                        <span className={`text-xs font-bold uppercase ${tx.type === 'buy' ? 'text-emerald-400' : 'text-cyan-400'}`}>
-                                                            {tx.type === 'buy' ? 'Compra' : 'Venta'}
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-right font-mono text-slate-300">
-                                                    {Number(tx.amount_crypto).toLocaleString('es-ES', { maximumFractionDigits: 8 })} <span className="text-slate-500 ml-1">{tx.simbolo_moneda}</span>
-                                                </td>
-                                                <td className="px-6 py-4 text-right font-bold text-slate-100">
-                                                    ${Number(tx.amount_usd).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        {tx.status === 'pending' ? (
-                                                            <>
-                                                                <button
-                                                                    onClick={() => procesarTransaccion(tx.id, 'aprobar')}
-                                                                    title="Aprobar"
-                                                                    className="p-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white rounded-lg transition-all border border-emerald-500/20"
-                                                                >
-                                                                    <CheckCircle2 className="h-5 w-5" />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => procesarTransaccion(tx.id, 'rechazar')}
-                                                                    title="Rechazar"
-                                                                    className="p-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-all border border-red-500/20"
-                                                                >
-                                                                    <XCircle className="h-5 w-5" />
-                                                                </button>
-                                                            </>
-                                                        ) : (
-                                                            <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${tx.status === 'approved'
-                                                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                                                                : 'bg-red-500/10 border-red-500/20 text-red-400'
-                                                                }`}>
-                                                                {tx.status === 'approved' ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                                                                <span className="text-xs font-bold uppercase">
-                                                                    {tx.status === 'approved' ? 'Aprobada' : 'Rechazada'}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )) : (
-                                            <tr>
-                                                <td colSpan="6" className="py-16 text-center">
-                                                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 mb-4">
-                                                        <Search className="h-8 w-8 text-slate-600" />
-                                                    </div>
-                                                    <h3 className="text-lg font-medium text-slate-300">Sin resultados</h3>
-                                                    <p className="text-slate-500 max-w-sm mx-auto mt-2">
-                                                        No hay transacciones que coincidan con los filtros actuales.
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
+                            {/* --- VISTA UNIFICADA DE TARJETAS (GRID) --- */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {currentTransactions.map((tx) => (
+                                    <div key={tx.id} className="bg-slate-800/20 border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800/40 transition-all flex flex-col gap-4 group relative overflow-hidden">
 
-                            {/* --- VISTA DE MÓVIL (TARJETAS) --- */}
-                            <div className="md:hidden flex flex-col divide-y divide-slate-800/50">
-                                {currentTransactions.length > 0 ? currentTransactions.map((tx) => (
-                                    <div key={tx.id} className="p-4 bg-slate-800/10 flex flex-col gap-4">
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex gap-3">
-                                                <div className={`p-2 rounded-lg ${tx.type === 'buy' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-cyan-500/10 text-cyan-400'}`}>
-                                                    {tx.type === 'buy' ? <ArrowDownLeft className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
+                                        {/* Decoración de fondo */}
+                                        <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${tx.type === 'buy' ? 'from-emerald-500/10' : 'from-cyan-500/10'} to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110`} />
+
+                                        {/* Header de la Tarjeta */}
+                                        <div className="flex justify-between items-start relative z-10">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shadow-sm ${tx.type === 'buy'
+                                                    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                                    : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
+                                                    }`}>
+                                                    {tx.type === 'buy' ? <ArrowDownLeft className="h-6 w-6" /> : <ArrowUpRight className="h-6 w-6" />}
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-slate-200 text-sm">
-                                                        {tx.type === 'buy' ? 'Compra' : 'Venta'} de {tx.simbolo_moneda}
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${tx.type === 'buy' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'}`}>
+                                                            {tx.type === 'buy' ? 'Compra' : 'Venta'}
+                                                        </span>
+                                                        <span className="text-xs text-slate-500 font-mono">#{tx.id}</span>
                                                     </div>
-                                                    <div className="text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString()}</div>
-                                                    <div className="text-xs text-slate-400 mt-1">{tx.email_usuario}</div>
+                                                    <h3 className="font-bold text-slate-200 text-lg mt-0.5">{tx.simbolo_moneda}</h3>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="font-bold text-slate-100">${Number(tx.amount_usd).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                                                <div className="text-xs font-mono text-slate-500">{Number(tx.amount_crypto).toLocaleString('es-ES', { maximumFractionDigits: 8 })} {tx.simbolo_moneda}</div>
+                                                <div className="text-xs text-slate-500 flex items-center gap-1 justify-end">
+                                                    <Clock className="h-3 w-3" />
+                                                    {new Date(tx.created_at).toLocaleDateString()}
+                                                </div>
+                                                <div className="text-[10px] text-slate-600">
+                                                    {new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {tx.status === 'pending' ? (
-                                            <div className="flex gap-2 mt-2">
-                                                <button
-                                                    onClick={() => procesarTransaccion(tx.id, 'aprobar')}
-                                                    className="flex-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 py-2 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all"
-                                                >
-                                                    <CheckCircle2 className="h-4 w-4" /> Aprobar
-                                                </button>
-                                                <button
-                                                    onClick={() => procesarTransaccion(tx.id, 'rechazar')}
-                                                    className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-2 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all"
-                                                >
-                                                    <XCircle className="h-4 w-4" /> Rechazar
-                                                </button>
+                                        {/* Información del Usuario */}
+                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-900/50 border border-slate-800/50 relative z-10">
+                                            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+                                                <User className="h-4 w-4" />
                                             </div>
-                                        ) : (
-                                            <div className={`mt-2 py-2 rounded-xl flex items-center justify-center gap-2 border ${tx.status === 'approved'
-                                                ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500'
-                                                : 'bg-red-500/5 border-red-500/20 text-red-500'
-                                                }`}>
-                                                {tx.status === 'approved' ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                                                <span className="font-bold text-sm uppercase">
-                                                    {tx.status === 'approved' ? 'Aprobada' : 'Rechazada'}
-                                                </span>
+                                            <div className="overflow-hidden">
+                                                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Usuario</p>
+                                                <p className="text-sm text-slate-300 truncate font-medium">{tx.email_usuario}</p>
                                             </div>
-                                        )}
-                                    </div>
-                                )) : (
-                                    <div className="py-12 text-center">
-                                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-800 mb-3">
-                                            <Search className="h-6 w-6 text-slate-600" />
                                         </div>
-                                        <p className="text-slate-500">No hay transacciones.</p>
+
+                                        {/* Montos */}
+                                        <div className="flex justify-between items-end border-b border-slate-800/50 pb-4 relative z-10">
+                                            <div>
+                                                <p className="text-xs text-slate-500 mb-0.5">Monto {tx.simbolo_moneda}</p>
+                                                <p className="text-xl font-mono text-slate-200 tracking-tight">
+                                                    {Number(tx.amount_crypto).toLocaleString('es-ES', { maximumFractionDigits: 8 })}
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-xs text-slate-500 mb-0.5">Total USD</p>
+                                                <p className={`text-lg font-bold ${tx.type === 'buy' ? 'text-emerald-400' : 'text-cyan-400'}`}>
+                                                    ${Number(tx.amount_usd).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Acciones / Estado */}
+                                        <div className="relative z-10 mt-auto pt-2">
+                                            {tx.status === 'pending' ? (
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <button
+                                                        onClick={() => procesarTransaccion(tx.id, 'rechazar')}
+                                                        className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white transition-all font-bold text-sm bg-red-500/5"
+                                                    >
+                                                        <XCircle className="h-4 w-4" /> Rechazar
+                                                    </button>
+                                                    <button
+                                                        onClick={() => procesarTransaccion(tx.id, 'aprobar')}
+                                                        className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all font-bold text-sm bg-emerald-500/5"
+                                                    >
+                                                        <CheckCircle2 className="h-4 w-4" /> Aprobar
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className={`w-full py-2.5 rounded-xl flex items-center justify-center gap-2 border ${tx.status === 'approved'
+                                                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                                    : 'bg-red-500/10 border-red-500/20 text-red-400'
+                                                    }`}>
+                                                    {tx.status === 'approved' ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                                                    <span className="font-bold uppercase tracking-wide">
+                                                        {tx.status === 'approved' ? 'Aprobada' : 'Rechazada'}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+
                                     </div>
-                                )}
+                                ))}
                             </div>
 
                             {/* --- PAGINACIÓN --- */}

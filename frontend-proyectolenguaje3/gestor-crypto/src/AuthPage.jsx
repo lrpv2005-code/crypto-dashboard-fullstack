@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import GestionModal from './components/GestionModal';
+import { API_BASE_URL } from './config';
 import { useNavigate, Link } from 'react-router-dom';
 import logoImg from './assets/components/logo.jpg';
 import { Mail, Lock, User, CheckCircle2, ArrowRight, TrendingUp, Eye, EyeOff, LogOut } from 'lucide-react';
@@ -92,8 +93,8 @@ const AuthPage = () => {
     setLoading(true);
 
     const url = isLogin
-      ? 'http://localhost:8000/api/token/'
-      : 'http://localhost:8000/api/users/registro/';
+      ? `${API_BASE_URL}/api/token/`
+      : `${API_BASE_URL}/api/users/registro/`;
 
     const payload = {
       email: formData.email,
@@ -230,6 +231,14 @@ const AuthPage = () => {
           ) : (
             /* --- VISTA DE LOGIN / REGISTRO --- */
             <>
+              {/* LOGO VISIBLE SOLO EN MÓVIL */}
+              <div className="md:hidden flex justify-center mb-8">
+                <Link to="/" className="inline-flex items-center gap-2 bg-slate-800/50 border border-slate-700/50 p-2 pr-4 rounded-xl backdrop-blur-sm hover:border-cyan-500/50 transition-colors">
+                  <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm" />
+                  <span className="font-bold tracking-tight text-white text-sm">CryptoManager</span>
+                </Link>
+              </div>
+
               <div className="text-center mb-10">
                 <h2 className="text-3xl font-bold mb-2">{isLogin ? 'Bienvenido' : 'Crear Cuenta'}</h2>
                 <p className="text-slate-400">{isLogin ? 'Ingresa tus credenciales.' : 'Completa el formulario.'}</p>
@@ -379,7 +388,7 @@ const RecoveryModal = ({ isOpen, onClose, setModalState }) => {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/wallet/recuperar-password/', {
+      const response = await fetch(`${API_BASE_URL}/api/wallet/recuperar-password/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from './config';
+import { Link } from 'react-router-dom';
 import GestionModal from './components/GestionModal';
 import ProfileModal from './components/ProfileModal';
 import CryptoChart from './components/CryptoChart';
@@ -42,7 +44,7 @@ const PortfolioPieChart = ({ data }) => {
     const activeItem = activeIndex !== null ? data[activeIndex] : null;
 
     return (
-        <div className="flex flex-col md:flex-row items-center justify-center gap-12 w-full p-6">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-12 w-full p-6 select-none">
             <div className="relative w-64 h-64">
                 <svg viewBox="-1.1 -1.1 2.2 2.2" className="transform -rotate-90 w-full h-full">
                     {data.map((slice, index) => {
@@ -202,18 +204,18 @@ const UserDashboard = () => {
 
             try {
                 // Cargar Monedas
-                const resCriptos = await fetch('http://localhost:8000/api/criptos/', { headers });
+                const resCriptos = await fetch(`${API_BASE_URL}/api/criptos/`, { headers });
                 const dataCriptos = await resCriptos.json();
                 setCriptos(dataCriptos);
                 if (dataCriptos.length > 0) setFormData(prev => ({ ...prev, currency: dataCriptos[0].id }));
 
                 // Cargar Historial
-                const resHist = await fetch('http://localhost:8000/api/transacciones/historial/', { headers });
+                const resHist = await fetch(`${API_BASE_URL}/api/transacciones/historial/`, { headers });
                 const dataHist = await resHist.json();
                 setHistorial(Array.isArray(dataHist) ? dataHist : []);
 
                 // Cargar Dashboard Data
-                const resDash = await fetch('http://localhost:8000/api/wallet/dashboard/', { headers });
+                const resDash = await fetch(`${API_BASE_URL}/api/wallet/dashboard/`, { headers });
                 const dataDash = await resDash.json();
                 setDashboardData(dataDash);
 
@@ -230,7 +232,7 @@ const UserDashboard = () => {
         const token = localStorage.getItem('accessToken');
 
         try {
-            const response = await fetch('http://localhost:8000/api/transacciones/crear/', {
+            const response = await fetch(`${API_BASE_URL}/api/transacciones/crear/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -245,10 +247,10 @@ const UserDashboard = () => {
                 setMensaje({ type: 'success', text: '¡Solicitud enviada con éxito!' });
                 // Recargar historial y dashboard
                 const headers = { 'Authorization': `Bearer ${token}` };
-                const resHist = await fetch('http://localhost:8000/api/transacciones/historial/', { headers });
+                const resHist = await fetch(`${API_BASE_URL}/api/transacciones/historial/`, { headers });
                 setHistorial(await resHist.json());
 
-                const resDash = await fetch('http://localhost:8000/api/wallet/dashboard/', { headers });
+                const resDash = await fetch(`${API_BASE_URL}/api/wallet/dashboard/`, { headers });
                 setDashboardData(await resDash.json());
 
             } else {
@@ -299,7 +301,7 @@ const UserDashboard = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:8000/api/transactions/exportar_excel/', {
+            const response = await fetch(`${API_BASE_URL}/api/transactions/exportar_excel/`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -332,43 +334,44 @@ const UserDashboard = () => {
         <div className="min-h-screen bg-slate-900 text-slate-50 font-sans selection:bg-cyan-500 selection:text-white">
 
             {/* NAVBAR */}
+            {/* NAVBAR */}
             <nav className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
+                        {/* Logo y Título */}
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-3 p-2 pr-4 bg-slate-800/80 rounded-xl border border-slate-700/50 shadow-sm">
-                                <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm" />
-                                <span className="font-bold text-sm tracking-wide text-slate-200">Mi Portafolio</span>
-                            </div>
+                            <Link to="/" className="bg-slate-800/80 p-2 pr-4 rounded-xl border border-slate-700/50 flex items-center gap-3 hover:border-cyan-500/50 transition-all cursor-pointer shadow-sm">
+                                <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover" />
+                                <div className="flex flex-col justify-center">
+                                    <span className="font-bold text-sm tracking-wide text-slate-200 leading-none">Mi Portafolio</span>
+                                </div>
+                            </Link>
                         </div>
-                        <div className="flex items-center gap-6">
+
+                        {/* Menú de Usuario */}
+                        <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setIsProfileOpen(true)}
-                                className="flex items-center gap-4 pl-4 pr-2 py-1.5 rounded-full hover:bg-slate-800/50 transition-all border border-transparent hover:border-slate-700 group"
+                                className="group flex items-center gap-3 pl-4 pr-1.5 py-1.5 bg-slate-800/50 hover:bg-slate-800 rounded-full border border-slate-700/50 hover:border-slate-600 transition-all"
                             >
                                 <div className="text-right hidden sm:block">
-                                    <p className="text-sm font-bold text-slate-200 leading-none group-hover:text-white transition-colors">{usuario?.name || 'Usuario'}</p>
-                                    <p className="text-[11px] text-cyan-500 font-medium leading-tight mt-1">Ver Perfil</p>
+                                    <p className="text-xs font-bold text-slate-200 group-hover:text-white transition-colors">{usuario?.first_name || usuario?.username || usuario?.name || 'Usuario'}</p>
                                 </div>
-                                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-700 bg-slate-800 flex items-center justify-center group-hover:border-cyan-500 shadow-md transition-all">
+                                <div className="h-8 w-8 bg-slate-700 rounded-full flex items-center justify-center overflow-hidden ring-2 ring-slate-800 group-hover:ring-cyan-500/50 transition-all">
                                     {usuario?.avatar ? (
                                         <img src={usuario.avatar} alt="Avatar" className="w-full h-full object-cover" />
                                     ) : (
-                                        <User className="h-5 w-5 text-slate-400" />
+                                        <User className="h-4 w-4 text-slate-300" />
                                     )}
                                 </div>
                             </button>
 
-                            <div className="h-8 w-px bg-slate-800/50" />
-
                             <button
                                 onClick={() => { localStorage.clear(); window.location.href = '/'; }}
-                                className="group flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors text-sm font-medium px-4 py-2 rounded-xl hover:bg-red-500/10"
+                                className="p-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl transition-all border border-red-500/20"
+                                title="Cerrar Sesión"
                             >
-                                <div className="p-1.5 rounded-md bg-slate-800 text-slate-500 group-hover:bg-red-500 group-hover:text-white transition-all">
-                                    <LogOut className="h-4 w-4" />
-                                </div>
-                                <span className="hidden sm:inline">Cerrar Sesión</span>
+                                <LogOut className="h-5 w-5" />
                             </button>
                         </div>
                     </div>
@@ -405,7 +408,7 @@ const UserDashboard = () => {
                         <div className="divide-y divide-slate-800/50">
                             {dashboardData.activos && dashboardData.activos.length > 0 ? (
                                 dashboardData.activos.map((activo, index) => (
-                                    <div key={index} className="flex flex-col sm:flex-row items-center justify-between p-6 hover:bg-slate-800/30 transition-colors group">
+                                    <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 hover:bg-slate-800/30 transition-colors group">
                                         <div className="flex items-center gap-4 w-full sm:w-auto">
                                             {/* Borde lateral de color */}
                                             <div
@@ -423,13 +426,21 @@ const UserDashboard = () => {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-8 mt-4 sm:mt-0 w-full sm:w-auto justify-between sm:justify-end">
-                                            <div className="text-right">
-                                                <p className="font-mono text-lg text-slate-200">{activo.cantidad.toFixed(activo.simbolo === 'USDT' ? 2 : 6)}</p>
-                                                <p className="text-sm font-bold text-emerald-400">
-                                                    <span className="opacity-50 text-xs mr-1">≈</span>
-                                                    ${activo.valor.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                </p>
+                                        <div className="mt-4 sm:mt-0 w-full sm:w-auto text-left sm:text-right">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-baseline justify-between sm:justify-end gap-2">
+                                                    <span className="text-xs text-slate-500 font-bold uppercase sm:hidden">Saldo</span>
+                                                    <span className="font-mono text-lg text-slate-200">
+                                                        {activo.cantidad.toFixed(activo.simbolo === 'USDT' ? 2 : 6)} <span className="text-slate-500 text-sm">{activo.simbolo}</span>
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-baseline justify-between sm:justify-end gap-2">
+                                                    <span className="text-xs text-slate-500 font-bold uppercase sm:hidden">Valor</span>
+                                                    <span className="text-sm font-bold text-emerald-400">
+                                                        <span className="opacity-50 text-xs mr-1">≈</span>
+                                                        ${activo.valor.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

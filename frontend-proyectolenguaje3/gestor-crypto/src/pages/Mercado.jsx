@@ -136,14 +136,15 @@ const Mercado = () => {
             {loading && <Loader2 className="animate-spin text-cyan-500" />}
           </div>
 
-          <div className="overflow-x-auto rounded-xl border border-slate-800 shadow-2xl">
+          {/* VISTA DE ESCRITORIO: TABLA (Visible solo en md y superior) */}
+          <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-800 shadow-2xl">
             <table className="w-full text-left bg-[#0b1120]">
               <thead>
                 <tr className="border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
                   <th className="p-5">Activo</th>
                   <th className="p-5 text-right">Precio (USD)</th>
                   <th className="p-5 text-right">Cambio 24h</th>
-                  <th className="p-5 text-center">Acción</th>
+                  {/* Eliminada la columna de Acción */}
                 </tr>
               </thead>
               <tbody>
@@ -176,15 +177,58 @@ const Mercado = () => {
                       {coin.price_change_percentage_24h >= 0 ? '+' : ''}
                       {coin.price_change_percentage_24h?.toFixed(2)}%
                     </td>
-                    <td className="p-5 text-center">
-                      <button className="p-2 hover:text-cyan-400 transition-colors">
-                        <BarChart3 className="w-5 h-5" />
-                      </button>
-                    </td>
+                    {/* Eliminada la celda de Acción */}
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* VISTA MÓVIL: TARJETAS (Visible solo en pantallas pequeñas) */}
+          <div className="md:hidden space-y-4">
+            {cryptos.map((coin) => (
+              <div
+                key={coin.id}
+                onClick={() => setSelectedCoin({
+                  symbol: coin.symbol,
+                  name: coin.name,
+                  price: coin.current_price
+                })}
+                className={`p-4 rounded-xl border transition-all cursor-pointer ${selectedCoin.symbol === coin.symbol
+                    ? 'bg-slate-800/80 border-cyan-500 ring-1 ring-cyan-500/50'
+                    : 'bg-[#0b1120] border-slate-800 hover:bg-slate-800/40'
+                  }`}
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <img src={coin.image} alt={coin.name} className="w-10 h-10 rounded-full" />
+                    <div>
+                      <h3 className="font-bold text-white text-lg">{coin.name}</h3>
+                      <span className="text-slate-500 text-sm uppercase font-mono">{coin.symbol}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-mono text-white text-lg font-semibold">
+                      ${coin.current_price.toLocaleString('es-ES', {
+                        minimumFractionDigits: coin.current_price < 1 ? 4 : 2,
+                        maximumFractionDigits: coin.current_price < 1 ? 4 : 2
+                      })}
+                    </p>
+                    <p className={`text-sm font-semibold ${coin.price_change_percentage_24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {coin.price_change_percentage_24h >= 0 ? '▲' : '▼'} {Math.abs(coin.price_change_percentage_24h)?.toFixed(2)}%
+                    </p>
+                  </div>
+                </div>
+
+                {/* Botón Ver Gráfico visible estéticamente como pidió el usuario */}
+                <div className="mt-3 pt-3 border-t border-slate-800/50 flex justify-end">
+                  <button className="flex items-center gap-2 bg-slate-800 hover:bg-cyan-900/30 text-cyan-400 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors w-full justify-center">
+                    <BarChart3 className="w-4 h-4" />
+                    Ver Gráfico
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

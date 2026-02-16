@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_BASE_URL } from './config';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -37,7 +38,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/transactions/exportar_excel/', {
+      const response = await fetch(`${API_BASE_URL}/api/transactions/exportar_excel/`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
